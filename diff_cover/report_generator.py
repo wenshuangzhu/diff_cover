@@ -107,6 +107,21 @@ class BaseReportGenerator:
         else:
             return None
 
+    def measured_lines(self, src_path):
+        """
+        Return a list of measured lines (integers)
+        in `src_path` that were changed.
+
+        If we have no coverage information for
+        `src_path`, returns an empty list.
+        """
+        diff_violations = self._diff_violations().get(src_path)
+
+        if diff_violations is None:
+            return []
+
+        return list(diff_violations.measured_lines)
+
     def violation_lines(self, src_path):
         """
         Return a list of lines in violation (integers)
@@ -204,6 +219,7 @@ class BaseReportGenerator:
             "percent_covered": self.percent_covered(src_path),
             "violation_lines": violation_lines,
             "violations": violations,
+            "measured_lines": self.measured_lines(src_path)
         }
 
 
