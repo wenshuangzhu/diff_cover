@@ -109,7 +109,7 @@ class BaseReportGenerator:
 
     def measured_lines(self, src_path):
         """
-        Return a list of measured lines (integers)
+        Return a list of lines (integers)
         in `src_path` that were changed.
 
         If we have no coverage information for
@@ -120,7 +120,7 @@ class BaseReportGenerator:
         if diff_violations is None:
             return []
 
-        return list(diff_violations.measured_lines)
+        return sorted(list(diff_violations.measured_lines))
 
     def violation_lines(self, src_path):
         """
@@ -137,6 +137,20 @@ class BaseReportGenerator:
             return []
 
         return sorted(diff_violations.lines)
+
+    def num_measured_lines(self, src_path):
+        """
+        Return the number of lines in the diff for
+        which we have coverage info.
+        """
+        return len(self.measured_lines(src_path))
+
+    def num_violation_lines(self, src_path):
+        """
+        Returns the total number of lines in the diff
+        that are in violation.
+        """
+        return len(self.violation_lines(src_path))
 
     def total_num_lines(self):
         """
@@ -219,12 +233,15 @@ class BaseReportGenerator:
             "percent_covered": self.percent_covered(src_path),
             "violation_lines": violation_lines,
             "violations": violations,
-            "measured_lines": self.measured_lines(src_path)
+            "num_violation_lines": self.num_violation_lines(src_path),
+            "measured_lines": self.measured_lines(src_path),
+            "num_measured_lines": self.num_measured_lines(src_path)
         }
 
 
 # Set up the template environment
-TEMPLATE_LOADER = PackageLoader(__package__)
+# TEMPLATE_LOADER = PackageLoader(__package__)
+TEMPLATE_LOADER = PackageLoader("diff_cover")
 TEMPLATE_ENV = Environment(loader=TEMPLATE_LOADER, trim_blocks=True, lstrip_blocks=True)
 TEMPLATE_ENV.filters["pluralize"] = pluralize_dj
 
